@@ -1,17 +1,15 @@
 package main
 
 import (
-	"embed"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 	"text/template"
-)
 
-//go:embed templates/*
-var templateFS embed.FS
+	"github.com/12153/hummingbird/src/cli/templates"
+)
 
 func main() {
 	args := os.Args
@@ -42,7 +40,7 @@ func scaffold(name string) error {
 		}
 	}
 
-	entries, err := templateFS.ReadDir("templates")
+	entries, err := templates.FS.ReadDir(".")
 	if err != nil {
 		return err
 	}
@@ -50,7 +48,7 @@ func scaffold(name string) error {
 	for _, entry := range entries {
 		rawName := entry.Name()
 		targetPath := filepath.Join(name, strings.TrimSuffix(rawName, ".tmpl"))
-		data, err := templateFS.ReadFile("templates/" + rawName)
+		data, err := templates.FS.ReadFile(rawName)
 		if err != nil {
 			return err
 		}

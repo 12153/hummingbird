@@ -1,4 +1,4 @@
-module github.com/yourname/hummingbird/cli
+module github.com/12153/hummingbird/cli
 
 go 1.21
 
