@@ -1,0 +1,33 @@
+# .air.toml
+
+# Working directory
+root = "."
+
+# Binary name (can be dynamic if you want, but "main" is fine for now)
+bin = "tmp/main"
+
+# Build command
+cmd = "go build -o tmp/main main.go"
+
+# Run command
+run = "tmp/main"
+
+# Watch these directories
+[include]
+  dirs = ["./"]
+
+# Ignore these directories
+[exclude]
+  dirs = ["assets", "node_modules", "public", "tmp"]
+
+# Extensions to watch
+[extensions]
+  include = ["go"]
+  exclude = ["templ"]
+
+# Log formatting
+[color]
+  main = "yellow"
+  watcher = "cyan"
+  build = "green"
+  runner = "magenta"

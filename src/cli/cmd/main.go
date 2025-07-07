@@ -4,73 +4,47 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
-	"strings"
-	"text/template"
 
-	"github.com/12153/hummingbird/src/cli/templates"
+	"github.com/12153/hummingbird/cli/cmd/pkg"
 )
 
 func main() {
 	args := os.Args
-	if len(args) < 3 || args[1] != "init" {
-		fmt.Println("Usage: hummingbird init <project-name>")
+
+	if len(args) < 2 {
+		fmt.Println("Usage: hummingbird <command> [args]")
 		os.Exit(1)
 	}
 
-	project := args[2]
-	if err := scaffold(project); err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Printf("✅ Project '%s' initialized.\n", project)
-}
-
-func scaffold(name string) error {
-	dirs := []string{
-		"app/pages",
-		"app/components",
-		"assets",
-		"public",
-	}
-
-	for _, d := range dirs {
-		if err := os.MkdirAll(filepath.Join(name, d), 0755); err != nil {
-			return err
+	switch args[1] {
+	case "init":
+		if len(args) < 3 {
+			fmt.Println("Usage: hummingbird init <project-name>")
+			os.Exit(1)
 		}
-	}
-
-	entries, err := templates.FS.ReadDir(".")
-	if err != nil {
-		return err
-	}
-
-	for _, entry := range entries {
-		rawName := entry.Name()
-		targetPath := filepath.Join(name, strings.TrimSuffix(rawName, ".tmpl"))
-		data, err := templates.FS.ReadFile(rawName)
-		if err != nil {
-			return err
+		if err := pkg.Scaffold(args[2]); err != nil {
+			log.Fatal(err)
 		}
-
-		if strings.HasSuffix(rawName, ".templ.tmpl") {
-			tmpl, err := template.New(rawName).Parse(string(data))
-			if err != nil {
-				return err
-			}
-			f, err := os.Create(targetPath)
-			if err != nil {
-				return err
-			}
-			defer f.Close()
-			tmpl.Execute(f, nil)
-		} else {
-			err = os.WriteFile(targetPath, data, 0644)
-			if err != nil {
-				return err
+		fmt.Printf("✅ Project '%s' initialized.\n", args[2])
+	case "add":
+		if len(args) < 4 {
+			fmt.Println("Usage: hummingbird add route <name>")
+			os.Exit(1)
+		}
+		if args[2] == "route" {
+			if err := pkg.AddRoute(args[3], "."); err != nil {
+				log.Fatal(err)
 			}
 		}
+	case "dev":
+		if len(args) < 3 {
+			fmt.Println("Usage: hummingbird dev <project-dir>")
+			os.Exit(1)
+		}
+		if err := pkg.Dev(args[2]); err != nil {
+			log.Fatal(err)
+		}
+	default:
+		fmt.Println("Unknown command:", args[1])
 	}
-
-	return nil
 }

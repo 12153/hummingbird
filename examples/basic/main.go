@@ -1,0 +1,38 @@
+package main
+
+import (
+	"github.com/12153/hummingbird/examples/basic/app"
+	"github.com/12153/hummingbird/examples/basic/app/pages"
+	"github.com/a-h/templ"
+	"github.com/labstack/echo/v4"
+)
+
+func main() {
+	e := echo.New()
+	e.Static("/assets", "public")
+
+	e.GET("/", func(c echo.Context) error {
+		page := pages.Index()
+		return renderWithLayout(c, page)
+	})
+
+	e.GET("/about", func(c echo.Context) error {
+		page := pages.About()
+		return renderWithLayout(c, page)
+	})
+
+	e.GET("/home", func(c echo.Context) error {
+		page := pages.Home()
+		return renderWithLayout(c, page)
+	})
+
+	e.Logger.Fatal(e.Start(":3000"))
+}
+
+func renderWithLayout(c echo.Context, page templ.Component) error {
+	if c.Request().Header.Get("X-Partial") == "true" {
+		return page.Render(c.Request().Context(), c.Response())
+	}
+	layout := app.Layout(page)
+	return layout.Render(c.Request().Context(), c.Response())
+}
